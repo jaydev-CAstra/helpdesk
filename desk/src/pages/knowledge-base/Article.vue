@@ -249,7 +249,6 @@
       v-if="article.data"
       v-model="showWeightModal"
       :articles="[article.data.name]"
-      :category="article.data.category"
       :initial-weight="article.data.weight"
       @save="saveWeight"
     />
