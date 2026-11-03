@@ -653,6 +653,22 @@ class TestHDTicket(IntegrationTestCase):
         self.assertEqual(ticket.resolution_time, 60 * 60)
         self.assertFalse(ticket.total_hold_time)
 
+    def test_resolved_time_counted_as_hold_when_reopened_straight_into_paused(self):
+        date = get_current_week_monday(hours=12)
+        with self.freeze_time(date):
+            ticket = make_ticket(priority="High")
+
+        # resolved at 13:00, follow-up reply at 14:00, customer answers at 15:00
+        for minutes, status in ((60, "Resolved"), (120, "Replied"), (180, "Open")):
+            ticket.reload()
+            with self.freeze_time(add_to_date(date, minutes=minutes)):
+                ticket.status = status
+                ticket.save()
+
+        ticket.reload()
+        # 1h resolved plus 1h waiting on the customer
+        self.assertEqual(ticket.total_hold_time, 2 * 60 * 60)
+
     def test_hold_time_resolution_time_with_holiday(self):
         # create friday as holiday
         # create ticket on thursday 5:30 PM with high priority

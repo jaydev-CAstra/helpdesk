@@ -268,7 +268,8 @@ class HDServiceLevelAgreement(Document):
             doc.resolution_date = None
             doc.resolution_by = None
             doc.resolution_time = None
-            doc.on_hold_since = now_datetime()
+            # reopened straight into a pause: the hold began when it was resolved
+            doc.on_hold_since = paused_since or now_datetime()
         elif not is_paused and was_paused:
             doc.on_hold_since = None
         if is_paused or not paused_since:
